@@ -1,20 +1,34 @@
-package se.umu.hatj0006.greed;
+package se.umu.hatj0006.greed.Fragment;
 
 import android.content.Intent;
-import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Random;
 
-public class GameActivity extends ActionBarActivity {
+import se.umu.hatj0006.greed.Activity.GameOverActivity;
+import se.umu.hatj0006.greed.Activity.ScoreListActivity;
+import se.umu.hatj0006.greed.Objects.Die;
+import se.umu.hatj0006.greed.Objects.DieState;
+import se.umu.hatj0006.greed.Objects.Round;
+import se.umu.hatj0006.greed.R;
+import se.umu.hatj0006.greed.Storage.DiceLab;
+import se.umu.hatj0006.greed.Storage.Game;
+import se.umu.hatj0006.greed.Storage.ScoreLab;
+
+/**
+ * Created by mtr on 2015-08-30.
+ */
+public class GreedFragment extends Fragment{
     private Button mSaveButton;
     private Button mScoreButton;
     private Button mThrowButton;
@@ -23,8 +37,9 @@ public class GameActivity extends ActionBarActivity {
 
     private static final String TAG = "GameActivity";
     private static final String KEY_INDEX = "index";
+    private View view;
 
-    /*  instanceSave function saves the Game Object by using Parcelable   */
+    //  instanceSave function saves the Game Object by using Parcelable
     @Override
     public void onSaveInstanceState(Bundle savedInstanceState) {
         super.onSaveInstanceState(savedInstanceState);
@@ -32,15 +47,15 @@ public class GameActivity extends ActionBarActivity {
         savedInstanceState.putParcelable("GAME_obj", mGame);
     }
 
-    /* Updates all the UI, this function is called after rotate etc. */
+    // Updates all the UI, this function is called after rotate etc.
     private void updateGame() {
         updateDice();
 
-        TextView currentRound = (TextView) findViewById(R.id.CurrentRoundTextView);
-        TextView currentThrow = (TextView) findViewById(R.id.CurrentThrowTextView);
-        TextView totalScore = (TextView) findViewById(R.id.TotalScoreTextView);
-        TextView roundScore = (TextView) findViewById(R.id.RoundScoreTextView);
-        TextView throwScore = (TextView) findViewById(R.id.ThrowScoreTextView);
+        TextView currentRound = (TextView)view.findViewById(R.id.CurrentRoundTextView);
+        TextView currentThrow = (TextView)view.findViewById(R.id.CurrentThrowTextView);
+        TextView totalScore = (TextView)view.findViewById(R.id.TotalScoreTextView);
+        TextView roundScore = (TextView)view.findViewById(R.id.RoundScoreTextView);
+        TextView throwScore = (TextView)view.findViewById(R.id.ThrowScoreTextView);
 
         if(!mGame.getRounds().isEmpty()) {
             currentThrow.setText("Throw: " + mGame.getRounds().get(mGame.getRounds().size() - 1).getThrows());
@@ -57,14 +72,21 @@ public class GameActivity extends ActionBarActivity {
     }
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_game);
+        getActivity().setContentView(R.layout.activity_game);
 
+    }
+
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup parent, Bundle savedInstanceState) {
+        view = super.onCreateView(inflater, parent, savedInstanceState);
+
+        initDiceImageListeners();
 
         if (savedInstanceState == null || !savedInstanceState.containsKey("GAME_obj")) {
-            ArrayList<Die> mDice = DiceLab.get(getApplicationContext()).getDices();   //Gets the Die array from DiceLab
-            ArrayList<Round> mRounds = ScoreLab.get(getApplicationContext()).getRounds(); //Get the Rounds array from ScoreLab
+            ArrayList<Die> mDice = DiceLab.get(getActivity().getApplicationContext()).getDices();   //Gets the Die array from DiceLab
+            ArrayList<Round> mRounds = ScoreLab.get(getActivity().getApplicationContext()).getRounds(); //Get the Rounds array from ScoreLab
 
             //Create a new Game class, initialize with round and dice array.
             mGame = new Game(mDice, mRounds);
@@ -77,11 +99,8 @@ public class GameActivity extends ActionBarActivity {
             updateGame();
         }
 
-        initDiceImageListeners();
-
-
         //Save Button
-        mSaveButton = (Button)findViewById(R.id.save_button);
+        mSaveButton = (Button)view.findViewById(R.id.save_button);
         mSaveButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -92,27 +111,27 @@ public class GameActivity extends ActionBarActivity {
         });
 
         //Score Button
-        mScoreButton = (Button)findViewById(R.id.score_button);
+        mScoreButton = (Button)view.findViewById(R.id.score_button);
         mScoreButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 
                 // Start ScoreListActivity for displaying every score for each played round in a list.
                 // Go back by using the "back" on the phone.
-                ScoreLab.get(getApplicationContext()).setRounds(mGame.getRounds());
-                Intent i = new Intent(GameActivity.this, ScoreListActivity.class);
+                ScoreLab.get(getActivity().getApplicationContext()).setRounds(mGame.getRounds());
+                Intent i = new Intent(getActivity(), ScoreListActivity.class);
                 startActivityForResult(i, 0);
             }
         });
 
         //Throw Button
-        mThrowButton = (Button)findViewById(R.id.throw_button);
+        mThrowButton = (Button)view.findViewById(R.id.throw_button);
         mThrowButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Round newRound;
-                TextView currentRound = (TextView) findViewById(R.id.CurrentRoundTextView);
-                TextView currentThrow = (TextView) findViewById(R.id.CurrentThrowTextView);
+                TextView currentRound = (TextView)view.findViewById(R.id.CurrentRoundTextView);
+                TextView currentThrow = (TextView)view.findViewById(R.id.CurrentThrowTextView);
 
                 if (mGame.getRounds().isEmpty()) { //Is it the first round?
                     newRound = new Round();
@@ -143,22 +162,23 @@ public class GameActivity extends ActionBarActivity {
                 }
 
                 mGame.throwDices();
-                newThrowDice();
-                //throwDices();   //Throw function trigger
+                newThrowDice();//Throw function trigger
+                //Save rounds to disc
+                ScoreLab.get(getActivity().getApplicationContext()).saveRounds();
             }
         });
 
-
-
+        return view;
     }
 
-    /* Initialize all the imageButtons */
+
+    // Initialize all the imageButtons
     private void initDiceImageListeners() {
 
         for(int index=0; index<6; index++) {
             String res = "dieImage" + (index+1);
 
-            ImageButton mImageButton = (ImageButton)findViewById(getResourceId(res, "id", getPackageName()));
+            ImageButton mImageButton = (ImageButton) view.findViewById(getResourceId(res, "id", getActivity().getPackageName()));
 
             final int i = index;
             mImageButton.setOnClickListener(new View.OnClickListener() {
@@ -170,7 +190,7 @@ public class GameActivity extends ActionBarActivity {
         }
     }
 
-     /* Function that runs when a Die is clicked */
+    // Function that runs when a Die is clicked
     private void onDiceClick(int index) {
         Die currentDie = mGame.getDice().get(index);
 
@@ -201,7 +221,7 @@ public class GameActivity extends ActionBarActivity {
         }
     }
 
-    /*  Initialize Dice so that we have some images up on startup/new game*/
+    //  Initialize Dice so that we have some images up on startup/new game
     private void initDice() {
         Random r = new Random();
         ImageView imgView;
@@ -216,12 +236,12 @@ public class GameActivity extends ActionBarActivity {
             mGame.getDice().get(i).setValue(mValue);
             mGame.getDice().get(i).setState(DieState.NotPlayable);
 
-            imgView = (ImageView)findViewById( getResourceId(res, "id", getPackageName()));
-            imgView.setImageResource(getResourceId(loc, "drawable", getPackageName()));
+            imgView = (ImageView)view.findViewById(getResourceId(res, "id", getActivity().getPackageName()));
+            imgView.setImageResource(getResourceId(loc, "drawable", getActivity().getPackageName()));
         }
 
     }
-    /* Update all dice Images after their specifications. */
+    // Update all dice Images after their specifications.
     private void updateDice() {
         ImageView imgView;
         String res;
@@ -234,22 +254,25 @@ public class GameActivity extends ActionBarActivity {
 
             res = "dieImage" + (i+1);
 
-            imgView = (ImageView)findViewById( getResourceId(res, "id", getPackageName()));
-            imgView.setImageResource(getResourceId(loc, "drawable", getPackageName()));
+            imgView = (ImageView)view.findViewById(getResourceId(res, "id", getActivity().getPackageName()));
+            imgView.setImageResource(getResourceId(loc, "drawable", getActivity().getPackageName()));
         }
 
         //Update TextView for ThrowScore
-        TextView throwScore = (TextView)findViewById(R.id.ThrowScoreTextView);
+        TextView throwScore = (TextView)view.findViewById(R.id.ThrowScoreTextView);
         throwScore.setText("Throwscore: " + mGame.getThrowScore());
         //Update TextView for RoundScore
-        TextView roundScore = (TextView)findViewById(R.id.RoundScoreTextView);
+        TextView roundScore = (TextView)view.findViewById(R.id.RoundScoreTextView);
         roundScore.setText("Roundscore: " + mGame.getRoundScore());
+
+        //Save dice to disc
+        DiceLab.get(getActivity()).saveDice();
     }
 
-    /* Throw dices */
+    // Throw dices
     private void newThrowDice() {
         if(!mGame.getRounds().get(mGame.getRounds().size() - 1).isRoundStarted()) {
-            /* Need to have mReqFirstScore points first throw! */
+            // Need to have mReqFirstScore points first throw!
             mGame.getRounds().get(mGame.getRounds().size() - 1).setRoundStarted(true);
             if(mGame.getThrowScore() < mGame.getReqFirstScore()) {
                 mGame.clearScore();
@@ -268,7 +291,7 @@ public class GameActivity extends ActionBarActivity {
         updateDice();
     }
 
-    /* Ends the round and sets the roundScore to the Round object... (Updates textfields) */
+    // Ends the round and sets the roundScore to the Round object... (Updates textfields)
     private void roundOver(){
         mGame.getRounds().get(mGame.getRounds().size()-1).setRoundEnded(true);
 
@@ -284,19 +307,19 @@ public class GameActivity extends ActionBarActivity {
 
         if(mGame.getTotalScore() > mGame.getMaxScore()) {   //CHECK IF WE HAVE REACHED MAXSCORE!
             // START GAME OVER ACTIVITY
-            Intent i = new Intent(GameActivity.this, GameOverActivity.class);
+            Intent i = new Intent(getActivity(), GameOverActivity.class);
             i.putExtra(GameOverActivity.NUMBER_OF_ROUNDS, mGame.getRounds().size());
             i.putExtra(GameOverActivity.TOTAL_SCORE, mGame.getTotalScore());
             startActivityForResult(i, 0);;
-            ScoreLab.get(getApplicationContext()).setRounds(new ArrayList<Round>());
+            ScoreLab.get(getActivity().getApplicationContext()).setRounds(new ArrayList<Round>());
         }
 
         //Update totalScore text.
-        TextView totalScore = (TextView)findViewById(R.id.TotalScoreTextView);
+        TextView totalScore = (TextView)view.findViewById(R.id.TotalScoreTextView);
         totalScore.setText("TotalScore: " + mGame.getTotalScore());
     }
 
-    /* Get a resourceID from strings */
+    //Get a resourceID from strings
     private int getResourceId(String pVariableName, String pResourcename, String pPackageName)
     {
         try {
@@ -306,4 +329,5 @@ public class GameActivity extends ActionBarActivity {
             return -1;
         }
     }
+
 }

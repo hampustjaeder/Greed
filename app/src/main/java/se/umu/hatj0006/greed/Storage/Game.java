@@ -1,12 +1,14 @@
-package se.umu.hatj0006.greed;
+package se.umu.hatj0006.greed.Storage;
 
-import android.content.Intent;
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.Collections;
+
+import se.umu.hatj0006.greed.Objects.DieState;
+import se.umu.hatj0006.greed.Objects.Die;
+import se.umu.hatj0006.greed.Objects.Round;
 
 /*
     Game Class, handles the game and seperates the modul from the view. More as a correct MVC architecture.

@@ -1,9 +1,21 @@
-package se.umu.hatj0006.greed;
+package se.umu.hatj0006.greed.Objects;
+
+import android.util.Log;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.UUID;
 
 //Round Class
 public class Round {
+    //JSON variables
+    private static final String JSON_ID = "id";
+    private static final String JSON_TITLE = "title";
+    private static final String JSON_SCORE = "score";
+    private static final String JSON_ROUND_ENDED = "roundEnded";
+    private static final String JSON_ROUND_STARTED = "roundStarted";
+    private static final String JSON_THROWS = "throws";
 
     private UUID mId;
     private String mTitle;
@@ -21,6 +33,36 @@ public class Round {
         mRoundEnded = false;
         mRoundStarted = false;
     }
+
+    /*
+       Recreate from JSONObject
+    */
+    public Round(JSONObject json) throws JSONException {
+        mId = UUID.fromString(json.getString(JSON_ID));
+        mTitle = json.getString(JSON_TITLE);
+        mScore = json.getInt(JSON_SCORE);
+        mRoundStarted = json.getBoolean(JSON_ROUND_STARTED);
+        mRoundEnded = json.getBoolean(JSON_ROUND_ENDED);
+        mThrows = json.getInt(JSON_THROWS);
+    }
+
+    /*
+       Put Event to JSONobject
+    */
+    public JSONObject toJSON() throws JSONException {
+        JSONObject json = new JSONObject();
+
+        json.put(JSON_ID, mId);
+        json.put(JSON_TITLE, mTitle);
+        json.put(JSON_SCORE, mScore);
+        json.put(JSON_ROUND_STARTED, mRoundStarted);
+        json.put(JSON_ROUND_ENDED, mRoundEnded);
+        json.put(JSON_THROWS, mThrows);
+
+        return json;
+    }
+
+
     /* Return boolean if round is over. */
     public boolean isRoundEnded() {
         return mRoundEnded;
@@ -66,4 +108,5 @@ public class Round {
     public void incrementThrows() {
         mThrows += 1;
     }
+
 }

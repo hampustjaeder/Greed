@@ -1,16 +1,44 @@
-package se.umu.hatj0006.greed;
+package se.umu.hatj0006.greed.Objects;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.Random;
 
 
 /* The Die class */
 public class Die {
+    //JSON variables
+    private static final String JSON_VALUE = "value";
+    private static final String JSON_STATE = "state";
+
+
     private int mValue;
     private DieState mState;
 
     public Die() {
         mValue = 1;
         mState = DieState.Throwable;
+    }
+
+    /*
+       Recreate from JSONObject
+    */
+    public Die(JSONObject json) throws JSONException {
+        mValue = json.getInt(JSON_VALUE);
+        mState = DieState.valueOf(json.getString(JSON_STATE));
+    }
+
+    /*
+       Put Event to JSONobject
+    */
+    public JSONObject toJSON() throws JSONException {
+        JSONObject json = new JSONObject();
+
+        json.put(JSON_VALUE, mValue);
+        json.put(JSON_STATE, mState);
+
+        return json;
     }
 
     /* Get current die value. */
