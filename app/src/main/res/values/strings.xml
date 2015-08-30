@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">Greed</string>
+
+    <string name="action_settings">Settings</string>
+    <string name="title_activity_score">ScoreActivity</string>
+    <string name="title_activity_game_over">GameOverActivity</string>
+</resources>
